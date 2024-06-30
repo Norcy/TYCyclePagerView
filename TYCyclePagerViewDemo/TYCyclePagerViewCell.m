@@ -34,7 +34,7 @@
 - (void)addLabel {
     UILabel *label = [[UILabel alloc]init];
     label.textAlignment = NSTextAlignmentCenter;
-    label.textColor = [UIColor whiteColor];
+    label.textColor = [UIColor redColor];
     label.font = [UIFont systemFontOfSize:18];
     [self addSubview:label];
     _label = label;

@@ -35,8 +35,8 @@
 - (void)addPagerView {
     TYCyclePagerView *pagerView = [[TYCyclePagerView alloc]init];
     pagerView.layer.borderWidth = 1;
-    pagerView.isInfiniteLoop = YES;
-    pagerView.autoScrollInterval = 3.0;
+    pagerView.isInfiniteLoop = NO;
+    pagerView.autoScrollInterval = 0;
     pagerView.dataSource = self;
     pagerView.delegate = self;
     // registerClass or registerNib
@@ -108,14 +108,15 @@
 - (UICollectionViewCell *)pagerView:(TYCyclePagerView *)pagerView cellForItemAtIndex:(NSInteger)index {
     TYCyclePagerViewCell *cell = [pagerView dequeueReusableCellWithReuseIdentifier:@"cellId" forIndex:index];
     cell.backgroundColor = _datas[index];
-    cell.label.text = [NSString stringWithFormat:@"index->%ld",index];
+    cell.index = index;
+//    cell.label.text = [NSString stringWithFormat:@"index->%ld",index];
     return cell;
 }
 
 - (TYCyclePagerViewLayout *)layoutForPagerView:(TYCyclePagerView *)pageView {
     TYCyclePagerViewLayout *layout = [[TYCyclePagerViewLayout alloc]init];
-    layout.itemSize = CGSizeMake(CGRectGetWidth(pageView.frame)*0.8, CGRectGetHeight(pageView.frame)*0.8);
-    layout.itemSpacing = 15;
+    layout.itemSize = CGSizeMake(CGRectGetWidth(pageView.frame)*0.5, CGRectGetHeight(pageView.frame));
+    layout.itemSpacing = 0;
     //layout.minimumAlpha = 0.3;
     layout.itemHorizontalCenter = _horCenterSwitch.isOn;
     return layout;
@@ -145,7 +146,8 @@
 
 - (IBAction)sliderValueChangeAction:(UISlider *)sender {
     if (sender.tag == 0) {
-        _pagerView.layout.itemSize = CGSizeMake(CGRectGetWidth(_pagerView.frame)*sender.value, CGRectGetHeight(_pagerView.frame)*sender.value);
+//        _pagerView.layout.itemSize = CGSizeMake(CGRectGetWidth(_pagerView.frame)*sender.value, CGRectGetHeight(_pagerView.frame));
+        _pagerView.layout.itemSize = CGSizeMake(CGRectGetWidth(_pagerView.frame)*0.5, CGRectGetHeight(_pagerView.frame));
         [_pagerView setNeedUpdateLayout];
     }else if (sender.tag == 1) {
         _pagerView.layout.itemSpacing = 30*sender.value;

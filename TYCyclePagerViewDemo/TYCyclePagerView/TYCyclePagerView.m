@@ -7,6 +7,7 @@
 //
 
 #import "TYCyclePagerView.h"
+#import "TYCyclePagerViewCell.h"
 
 NS_INLINE BOOL TYEqualIndexSection(TYIndexSection indexSection1,TYIndexSection indexSection2) {
     return indexSection1.index == indexSection2.index && indexSection1.section == indexSection2.section;
@@ -517,6 +518,27 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     if (_delegateFlags.didScrollFromIndexToNewIndex && !TYEqualIndexSection(_indexSection, indexSection)) {
         //NSLog(@"curIndex %ld",(long)_indexSection.index);
         [_delegate pagerView:self didScrollFromIndex:MAX(indexSection.index, 0) toIndex:_indexSection.index];
+    }
+    
+    
+    CGFloat percent = scrollView.contentOffset.x/self.layout.itemSize.width;
+    
+    NSInteger count = [self.collectionView visibleCells].count;
+    NSLog(@"didScroll %@ -> %@ -> %@", @(_indexSection.index), @(percent), @(count));
+    
+    for (NSInteger i = 0; i < count; i++) {
+        TYCyclePagerViewCell *cell = (TYCyclePagerViewCell *)[self.collectionView visibleCells][i];
+        CGFloat alpha = 1;
+        if (percent < cell.index - 1 || percent > cell.index + 1) {
+            alpha = 0;
+        } else if (percent <= cell.index) {
+            alpha = percent - cell.index + 1;
+        } else {
+            alpha = cell.index + 1 - percent;
+        }
+        cell.label.text = [NSString stringWithFormat:@"%@", @(alpha)];
+        cell.label.alpha = alpha;
+        NSLog(@"alpha %@, %@", @(cell.index), @(alpha));
     }
 }
 
