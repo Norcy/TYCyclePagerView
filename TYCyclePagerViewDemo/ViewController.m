@@ -110,6 +110,12 @@
     cell.backgroundColor = _datas[index];
     cell.index = index;
     cell.label.text = [NSString stringWithFormat:@"index->%ld",index];
+    CGFloat alpha = 0;
+    if (cell.index == pagerView.indexSection.index) {
+        alpha = 1;
+    }
+    cell.label2.alpha = alpha;
+    cell.label2.text = [NSString stringWithFormat:@"%@", @(alpha)];
     return cell;
 }
 
