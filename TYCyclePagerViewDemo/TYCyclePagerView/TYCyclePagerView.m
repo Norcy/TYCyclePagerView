@@ -529,6 +529,8 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     
     CGFloat percent = scrollView.contentOffset.x/self.layout.itemSize.width;
     
+    // 如果是 reset 导致的滚动，这里取的 visableCells 是不准的，可以通过设置 kPagerViewMaxSectionCount=3 和 kPagerViewMinSectionCount = 1 测试
+    // 在 (1,6) 和 (2,0) 这两个 cell 之间滚动可必现问题。因为系统是先 scrolLViewDidScroll 再调用 cellForRow
     NSArray<TYCyclePagerViewCell *> *visableCells = [self.collectionView visibleCells];
     NSInteger count = visableCells.count;
     NSLog(@"didScroll %@ -> %@ -> %@", @(_indexSection.index), @(percent), @(count));
