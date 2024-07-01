@@ -115,8 +115,9 @@
 
 - (TYCyclePagerViewLayout *)layoutForPagerView:(TYCyclePagerView *)pageView {
     TYCyclePagerViewLayout *layout = [[TYCyclePagerViewLayout alloc]init];
-    layout.itemSize = CGSizeMake(CGRectGetWidth(pageView.frame)*0.5, CGRectGetHeight(pageView.frame));
+    layout.itemSize = CGSizeMake(300, CGRectGetHeight(pageView.frame));
     layout.itemSpacing = 0;
+    layout.sectionInset = UIEdgeInsetsMake(0, (CGRectGetWidth(pageView.frame)-layout.itemSize.width)/2, 0, (CGRectGetWidth(pageView.frame)-layout.itemSize.width)/2);
     //layout.minimumAlpha = 0.3;
     layout.itemHorizontalCenter = _horCenterSwitch.isOn;
     return layout;
@@ -147,8 +148,8 @@
 - (IBAction)sliderValueChangeAction:(UISlider *)sender {
     if (sender.tag == 0) {
 //        _pagerView.layout.itemSize = CGSizeMake(CGRectGetWidth(_pagerView.frame)*sender.value, CGRectGetHeight(_pagerView.frame));
-        _pagerView.layout.itemSize = CGSizeMake(CGRectGetWidth(_pagerView.frame)*0.5, CGRectGetHeight(_pagerView.frame));
-        [_pagerView setNeedUpdateLayout];
+//        _pagerView.layout.itemSize = CGSizeMake(300, CGRectGetHeight(_pagerView.frame));
+//        [_pagerView setNeedUpdateLayout];
     }else if (sender.tag == 1) {
         _pagerView.layout.itemSpacing = 30*sender.value;
         [_pagerView setNeedUpdateLayout];

@@ -52,8 +52,10 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
 
 @end
 
-#define kPagerViewMaxSectionCount 200
-#define kPagerViewMinSectionCount 18
+// 滚动时如果超过此区间 [kPagerViewMinSectionCount, kPagerViewMaxSectionCount]，则开始滚到中间
+// TODO 记得改回来
+#define kPagerViewMaxSectionCount 3
+#define kPagerViewMinSectionCount 1
 
 @implementation TYCyclePagerView
 
@@ -397,6 +399,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     CGFloat itemWidth = layout.itemSize.width + layout.minimumInteritemSpacing;
     NSInteger curIndex = 0;
     NSInteger curSection = 0;
+    // 这个算法的意思是，当下一个 item 的左边界超过了中线，则 index 改为下一个
     if (middleOffset - leftEdge >= 0) {
         NSInteger itemIndex = (middleOffset - leftEdge+layout.minimumInteritemSpacing/2)/itemWidth;
         if (itemIndex < 0) {
@@ -450,7 +453,8 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     if (!_isInfiniteLoop) {
         return;
     }
-    if (_indexSection.section > kPagerViewMaxSectionCount - kPagerViewMinSectionCount || _indexSection.section < kPagerViewMinSectionCount) {
+    // 这里要改为 >=，可以拿 kPagerViewMaxSectionCount = 3 和 kPagerViewMinSectionCount = 1 测试
+    if (_indexSection.section >= kPagerViewMaxSectionCount - kPagerViewMinSectionCount || _indexSection.section < kPagerViewMinSectionCount) {
         [self resetPagerViewAtIndex:_indexSection.index];
     }
 }
@@ -525,22 +529,25 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     
     CGFloat percent = scrollView.contentOffset.x/self.layout.itemSize.width;
     
-    NSInteger count = [self.collectionView visibleCells].count;
+    NSArray<TYCyclePagerViewCell *> *visableCells = [self.collectionView visibleCells];
+    NSInteger count = visableCells.count;
     NSLog(@"didScroll %@ -> %@ -> %@", @(_indexSection.index), @(percent), @(count));
     
     for (NSInteger i = 0; i < count; i++) {
-        TYCyclePagerViewCell *cell = (TYCyclePagerViewCell *)[self.collectionView visibleCells][i];
+        TYCyclePagerViewCell *cell = visableCells[i];
+        NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+        NSInteger realIndex = indexPath.section * _numberOfItems + indexPath.row;
         CGFloat alpha = 1;
-        if (percent < cell.index - 1 || percent > cell.index + 1) {
+        if (percent < realIndex - 1 || percent > realIndex + 1) {
             alpha = 0;
-        } else if (percent <= cell.index) {
-            alpha = percent - cell.index + 1;
+        } else if (percent <= realIndex) {
+            alpha = percent - realIndex + 1;
         } else {
-            alpha = cell.index + 1 - percent;
+            alpha = realIndex + 1 - percent;
         }
         cell.label2.text = [NSString stringWithFormat:@"%@", @(alpha)];
         cell.label2.alpha = alpha;
-        NSLog(@"alpha %@, %@", @(cell.index), @(alpha));
+        NSLog(@"alpha %@, %@", @(realIndex), @(alpha));
     }
 }
 
