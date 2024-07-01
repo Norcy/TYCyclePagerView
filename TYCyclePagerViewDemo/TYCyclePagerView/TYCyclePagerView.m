@@ -123,6 +123,8 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
 #pragma mark - timer
 
 - (void)addTimer {
+    [self removeTimer];
+    
     if (_timer || _autoScrollInterval <= 0) {
         return;
     }
@@ -536,8 +538,8 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
         } else {
             alpha = cell.index + 1 - percent;
         }
-        cell.label.text = [NSString stringWithFormat:@"%@", @(alpha)];
-        cell.label.alpha = alpha;
+        cell.label2.text = [NSString stringWithFormat:@"%@", @(alpha)];
+        cell.label2.alpha = alpha;
         NSLog(@"alpha %@, %@", @(cell.index), @(alpha));
     }
 }
@@ -622,6 +624,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     ((TYCyclePagerTransformLayout *)_collectionView.collectionViewLayout).delegate = nil;
     _collectionView.delegate = nil;
     _collectionView.dataSource = nil;
+    [self removeTimer];
 }
 
 @end
