@@ -11,6 +11,7 @@
 @interface TYCyclePagerViewCell : UICollectionViewCell
 
 @property (nonatomic, weak, readonly) UILabel *label;
+@property (nonatomic, weak, readonly) UILabel *label2;
 @property (nonatomic, assign) NSInteger index;
 
 @end

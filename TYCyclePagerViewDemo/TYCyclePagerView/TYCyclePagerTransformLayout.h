@@ -50,7 +50,7 @@ typedef NS_ENUM(NSUInteger, TYCyclePagerTransformLayoutType) {
 @property (nonatomic, assign) BOOL itemVerticalCenter;
 
 /**
- first and last item horizontalc enter, when isInfiniteLoop is NO
+ first and last item horizontalc center, when isInfiniteLoop is NO
  */
 @property (nonatomic, assign) BOOL itemHorizontalCenter;
 

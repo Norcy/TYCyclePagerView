@@ -37,12 +37,21 @@
     label.textColor = [UIColor redColor];
     label.font = [UIFont systemFontOfSize:18];
     [self addSubview:label];
+    
+    UILabel *label2 = [[UILabel alloc]init];
+    label2.textAlignment = NSTextAlignmentCenter;
+    label2.textColor = [UIColor redColor];
+    label2.font = [UIFont systemFontOfSize:18];
+    [self addSubview:label2];
+    
     _label = label;
+    _label2 = label2;
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    _label.frame = self.bounds;
+    _label.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height/2);
+    _label2.frame = CGRectMake(0, self.bounds.size.height/2, self.bounds.size.width, self.bounds.size.height/2);
 }
 
 @end

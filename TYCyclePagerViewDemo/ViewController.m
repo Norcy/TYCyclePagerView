@@ -35,7 +35,7 @@
 - (void)addPagerView {
     TYCyclePagerView *pagerView = [[TYCyclePagerView alloc]init];
     pagerView.layer.borderWidth = 1;
-    pagerView.isInfiniteLoop = NO;
+    pagerView.isInfiniteLoop = YES;
     pagerView.autoScrollInterval = 0;
     pagerView.dataSource = self;
     pagerView.delegate = self;
@@ -71,10 +71,10 @@
 - (void)loadData {
     NSMutableArray *datas = [NSMutableArray array];
     for (int i = 0; i < 7; ++i) {
-        if (i == 0) {
-            [datas addObject:[UIColor redColor]];
-            continue;
-        }
+//        if (i == 0) {
+//            [datas addObject:[UIColor redColor]];
+//            continue;
+//        }
         [datas addObject:[UIColor colorWithRed:arc4random()%255/255.0 green:arc4random()%255/255.0 blue:arc4random()%255/255.0 alpha:arc4random()%255/255.0]];
     }
     _datas = [datas copy];
@@ -109,7 +109,7 @@
     TYCyclePagerViewCell *cell = [pagerView dequeueReusableCellWithReuseIdentifier:@"cellId" forIndex:index];
     cell.backgroundColor = _datas[index];
     cell.index = index;
-//    cell.label.text = [NSString stringWithFormat:@"index->%ld",index];
+    cell.label.text = [NSString stringWithFormat:@"index->%ld",index];
     return cell;
 }
 
