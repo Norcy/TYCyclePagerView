@@ -140,7 +140,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
 }
 
 - (void)timerFired:(NSTimer *)timer {
-    if (!self.superview || !self.window || _numberOfItems == 0 || self.tracking) {
+    if (!self.superview || !self.window || _numberOfItems <= 1 || self.tracking) {
         return;
     }
     
