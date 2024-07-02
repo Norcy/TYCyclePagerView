@@ -175,6 +175,16 @@ typedef NS_ENUM(NSUInteger, TYPagerScrollDirection) {
 - (void)scrollToNearlyIndexAtDirection:(TYPagerScrollDirection)direction animate:(BOOL)animate;
 
 /**
+ 滚到下一页，有动画
+ */
+- (void)snapToNext;
+
+/**
+ 滚到上一页，有动画
+ */
+- (void)snapToPre;
+
+/**
  register pager view cell with class
  */
 - (void)registerClass:(Class)Class forCellWithReuseIdentifier:(NSString *)identifier;

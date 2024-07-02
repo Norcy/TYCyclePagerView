@@ -272,6 +272,14 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     [self scrollToItemAtIndexSection:indexSection animate:animate];
 }
 
+- (void)snapToNext {
+    [self scrollToNearlyIndexAtDirection:TYPagerScrollDirectionRight animate:YES];
+}
+
+- (void)snapToPre {
+    [self scrollToNearlyIndexAtDirection:TYPagerScrollDirectionLeft animate:YES];
+}
+
 - (void)scrollToItemAtIndex:(NSInteger)index animate:(BOOL)animate {
     if (!_didLayout && _didReloadData) {
         _firstScrollIndex = index;
