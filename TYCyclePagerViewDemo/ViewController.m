@@ -135,6 +135,14 @@
     NSLog(@"%ld ->  %ld",fromIndex,toIndex);
 }
 
+- (void)pagerView:(TYCyclePagerView *)pageView didScrollPercentChange:(CGFloat)percent
+          forCell:(__kindof UICollectionViewCell *)cell
+      atIndexPath:(NSIndexPath *)indexPath {
+    TYCyclePagerViewCell *myCell = (TYCyclePagerViewCell *)cell;
+    myCell.label2.text = [NSString stringWithFormat:@"%@", @(percent)];
+    myCell.label2.alpha = percent;
+}
+
 #pragma mark - action
 
 - (IBAction)switchValueChangeAction:(UISwitch *)sender {

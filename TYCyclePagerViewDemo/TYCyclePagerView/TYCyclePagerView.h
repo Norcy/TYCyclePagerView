@@ -53,6 +53,13 @@ typedef NS_ENUM(NSUInteger, TYPagerScrollDirection) {
 - (void)pagerView:(TYCyclePagerView *)pageView didScrollFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex;
 
 /**
+ pagerView cell 百分比变化，居中的为 1，其他的为 0，滑动过程中线性变化
+ */
+- (void)pagerView:(TYCyclePagerView *)pageView didScrollPercentChange:(CGFloat)percent
+          forCell:(__kindof UICollectionViewCell *)cell
+      atIndexPath:(NSIndexPath *)indexPath;
+
+/**
  pagerView did selected item cell
  */
 - (void)pagerView:(TYCyclePagerView *)pageView didSelectedItemCell:(__kindof UICollectionViewCell *)cell atIndex:(NSInteger)index;

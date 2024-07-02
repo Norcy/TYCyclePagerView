@@ -7,7 +7,6 @@
 //
 
 #import "TYCyclePagerView.h"
-#import "TYCyclePagerViewCell.h"
 
 NS_INLINE BOOL TYEqualIndexSection(TYIndexSection indexSection1,TYIndexSection indexSection2) {
     return indexSection1.index == indexSection2.index && indexSection1.section == indexSection2.section;
@@ -26,6 +25,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
         unsigned int didScrollFromIndexToNewIndex   :1;
         unsigned int initializeTransformAttributes   :1;
         unsigned int applyTransformToAttributes   :1;
+        unsigned int didScrollPercentChangeForCell: 1;
     }_delegateFlags;
     struct {
         unsigned int cellForItemAtIndex   :1;
@@ -53,9 +53,8 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
 @end
 
 // 滚动时如果超过此区间 [kPagerViewMinSectionCount, kPagerViewMaxSectionCount]，则开始滚到中间
-// TODO 记得改回来
-#define kPagerViewMaxSectionCount 3
-#define kPagerViewMinSectionCount 1
+#define kPagerViewMaxSectionCount 200
+#define kPagerViewMinSectionCount 18
 
 @implementation TYCyclePagerView
 
@@ -64,7 +63,6 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         [self configureProperty];
-        
         [self addCollectionView];
     }
     return self;
@@ -73,7 +71,6 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     if (self = [super initWithCoder:aDecoder]) {
         [self configureProperty];
-        
         [self addCollectionView];
     }
     return self;
@@ -223,6 +220,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     _delegate = delegate;
     _delegateFlags.pagerViewDidScroll = [delegate respondsToSelector:@selector(pagerViewDidScroll:)];
     _delegateFlags.didScrollFromIndexToNewIndex = [delegate respondsToSelector:@selector(pagerView:didScrollFromIndex:toIndex:)];
+    _delegateFlags.didScrollPercentChangeForCell = [delegate respondsToSelector:@selector(pagerView:didScrollPercentChange:forCell:atIndexPath:)];
     _delegateFlags.initializeTransformAttributes = [delegate respondsToSelector:@selector(pagerView:initializeTransformAttributes:)];
     _delegateFlags.applyTransformToAttributes = [delegate respondsToSelector:@selector(pagerView:applyTransformToAttributes:)];
     if (self.collectionView && self.collectionView.collectionViewLayout) {
@@ -526,30 +524,29 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
         [_delegate pagerView:self didScrollFromIndex:MAX(indexSection.index, 0) toIndex:_indexSection.index];
     }
     
-    
-    CGFloat percent = scrollView.contentOffset.x/self.layout.itemSize.width;
-    
-    // 如果是 reset 导致的滚动，这里取的 visableCells 是不准的，可以通过设置 kPagerViewMaxSectionCount=3 和 kPagerViewMinSectionCount = 1 测试
-    // 在 (1,6) 和 (2,0) 这两个 cell 之间滚动可必现问题。因为系统是先 scrolLViewDidScroll 再调用 cellForRow
-    NSArray<TYCyclePagerViewCell *> *visableCells = [self.collectionView visibleCells];
-    NSInteger count = visableCells.count;
-    NSLog(@"didScroll %@ -> %@ -> %@", @(_indexSection.index), @(percent), @(count));
-    
-    for (NSInteger i = 0; i < count; i++) {
-        TYCyclePagerViewCell *cell = visableCells[i];
-        NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
-        NSInteger realIndex = indexPath.section * _numberOfItems + indexPath.row;
-        CGFloat alpha = 1;
-        if (percent < realIndex - 1 || percent > realIndex + 1) {
-            alpha = 0;
-        } else if (percent <= realIndex) {
-            alpha = percent - realIndex + 1;
-        } else {
-            alpha = realIndex + 1 - percent;
+    if (_delegateFlags.didScrollPercentChangeForCell) {
+        CGFloat percent = scrollView.contentOffset.x/self.layout.itemSize.width;
+        // 如果是 reset 导致的滚动，这里取的 visableCells 是不准的，可以通过设置 kPagerViewMaxSectionCount=3 和 kPagerViewMinSectionCount = 1 测试
+        // 在 (1,6) 和 (2,0) 这两个 cell 之间滚动可必现问题。因为系统是先 scrolLViewDidScroll 再调用 cellForRow
+        NSArray<UICollectionViewCell *> *visableCells = [self.collectionView visibleCells];
+        NSInteger count = visableCells.count;
+        NSLog(@"didScroll %@ -> %@ -> %@", @(_indexSection.index), @(percent), @(count));
+        
+        for (NSInteger i = 0; i < count; i++) {
+            UICollectionViewCell *cell = visableCells[i];
+            NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+            NSInteger realIndex = indexPath.section * _numberOfItems + indexPath.row;
+            CGFloat itemPercent = 1;
+            if (percent < realIndex - 1 || percent > realIndex + 1) {
+                itemPercent = 0;
+            } else if (percent <= realIndex) {
+                itemPercent = percent - realIndex + 1;
+            } else {
+                itemPercent = realIndex + 1 - percent;
+            }
+            NSLog(@"alpha %@, %@", @(realIndex), @(itemPercent));
+            [_delegate pagerView:self didScrollPercentChange:itemPercent forCell:cell atIndexPath:indexPath];
         }
-        cell.label2.text = [NSString stringWithFormat:@"%@", @(alpha)];
-        cell.label2.alpha = alpha;
-        NSLog(@"alpha %@, %@", @(realIndex), @(alpha));
     }
 }
 
