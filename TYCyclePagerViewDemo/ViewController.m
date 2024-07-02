@@ -26,16 +26,17 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     self.title = @"TYCyclePagerView";
+    [self loadData];
     [self addPagerView];
     [self addPageControl];
-    
-    [self loadData];
+    _pageControl.numberOfPages = _datas.count;
+    [_pagerView reloadData];
 }
 
 - (void)addPagerView {
     TYCyclePagerView *pagerView = [[TYCyclePagerView alloc]init];
     pagerView.layer.borderWidth = 1;
-    pagerView.isInfiniteLoop = YES;
+    pagerView.isInfiniteLoop = self.datas.count > 1;
     pagerView.autoScrollInterval = 0;
     pagerView.dataSource = self;
     pagerView.delegate = self;
@@ -70,7 +71,7 @@
 
 - (void)loadData {
     NSMutableArray *datas = [NSMutableArray array];
-    for (int i = 0; i < 7; ++i) {
+    for (int i = 0; i < 1; ++i) {
 //        if (i == 0) {
 //            [datas addObject:[UIColor redColor]];
 //            continue;
@@ -78,8 +79,6 @@
         [datas addObject:[UIColor colorWithRed:arc4random()%255/255.0 green:arc4random()%255/255.0 blue:arc4random()%255/255.0 alpha:arc4random()%255/255.0]];
     }
     _datas = [datas copy];
-    _pageControl.numberOfPages = _datas.count;
-    [_pagerView reloadData];
     //[_pagerView scrollToItemAtIndex:3 animate:YES];
 }
 
