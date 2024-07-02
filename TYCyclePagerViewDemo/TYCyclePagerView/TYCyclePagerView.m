@@ -314,6 +314,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     if (!self.layout) {
         return;
     }
+    _isInfiniteLoop = _isInfiniteLoop && [_dataSource numberOfItemsInPagerView:self] > 1;
     self.layout.isInfiniteLoop = _isInfiniteLoop;
     ((TYCyclePagerTransformLayout *)_collectionView.collectionViewLayout).layout = self.layout;
 }
