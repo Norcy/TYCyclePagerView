@@ -153,7 +153,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     if (!_layout) {
         if (_dataSourceFlags.layoutForPagerView) {
             _layout = [_dataSource layoutForPagerView:self];
-            _layout.isInfiniteLoop = _isInfiniteLoop;
+            _layout.isInfiniteLoop = [self isRealInfiniteLoop];
         }
         if (_layout.itemSize.width <= 0 || _layout.itemSize.height <= 0) {
             _layout = nil;
@@ -200,6 +200,10 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
         [indexs addObject:@(indexPath.item)];
     }
     return [indexs copy];
+}
+
+- (BOOL)isRealInfiniteLoop {
+    return _isInfiniteLoop && [_dataSource numberOfItemsInPagerView:self] > 1;
 }
 
 #pragma mark - setter
@@ -274,7 +278,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     }else {
         _firstScrollIndex = -1;
     }
-    if (!_isInfiniteLoop) {
+    if (![self isRealInfiniteLoop]) {
         [self scrollToItemAtIndexSection:TYMakeIndexSection(index, 0) animate:animate];
         return;
     }
@@ -314,8 +318,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     if (!self.layout) {
         return;
     }
-    _isInfiniteLoop = _isInfiniteLoop && [_dataSource numberOfItemsInPagerView:self] > 1;
-    self.layout.isInfiniteLoop = _isInfiniteLoop;
+    self.layout.isInfiniteLoop = [self isRealInfiniteLoop];
     ((TYCyclePagerTransformLayout *)_collectionView.collectionViewLayout).layout = self.layout;
 }
 
@@ -355,7 +358,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
         return indexSection;
     }
     
-    if (!_isInfiniteLoop) {
+    if (![self isRealInfiniteLoop]) {
         if (direction == TYPagerScrollDirectionRight && indexSection.index == _numberOfItems - 1) {
             return _autoScrollInterval > 0 ? TYMakeIndexSection(0, 0) : indexSection;
         } else if (direction == TYPagerScrollDirectionRight) {
@@ -392,7 +395,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
         return TYMakeIndexSection(0, 0);
     }
      UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)_collectionView.collectionViewLayout;
-    CGFloat leftEdge = _isInfiniteLoop ? _layout.sectionInset.left : _layout.onlyOneSectionInset.left;
+    CGFloat leftEdge = [self isRealInfiniteLoop] ? _layout.sectionInset.left : _layout.onlyOneSectionInset.left;
     CGFloat width = CGRectGetWidth(_collectionView.frame);
     CGFloat middleOffset = offsetX + width/2;
     CGFloat itemWidth = layout.itemSize.width + layout.minimumInteritemSpacing;
@@ -417,13 +420,13 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
         return 0;
     }
     UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)_collectionView.collectionViewLayout;
-    UIEdgeInsets edge = _isInfiniteLoop ? _layout.sectionInset : _layout.onlyOneSectionInset;
+    UIEdgeInsets edge = [self isRealInfiniteLoop] ? _layout.sectionInset : _layout.onlyOneSectionInset;
     CGFloat leftEdge = edge.left;
     CGFloat rightEdge = edge.right;
     CGFloat width = CGRectGetWidth(_collectionView.frame);
     CGFloat itemWidth = layout.itemSize.width + layout.minimumInteritemSpacing;
     CGFloat offsetX = 0;
-    if (!_isInfiniteLoop && !_layout.itemHorizontalCenter && indexSection.index == _numberOfItems - 1) {
+    if (![self isRealInfiniteLoop] && !_layout.itemHorizontalCenter && indexSection.index == _numberOfItems - 1) {
         offsetX = leftEdge + itemWidth*(indexSection.index + indexSection.section*_numberOfItems) - (width - itemWidth) -  layout.minimumInteritemSpacing + rightEdge;
     }else {
         offsetX = leftEdge + itemWidth*(indexSection.index + indexSection.section*_numberOfItems) - layout.minimumInteritemSpacing/2 - (width - itemWidth)/2;
@@ -442,14 +445,14 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
     if (index >= _numberOfItems) {
         index = 0;
     }
-    [self scrollToItemAtIndexSection:TYMakeIndexSection(index, _isInfiniteLoop ? kPagerViewMaxSectionCount/3 : 0) animate:NO];
-    if (!_isInfiniteLoop && _indexSection.index < 0) {
+    [self scrollToItemAtIndexSection:TYMakeIndexSection(index, [self isRealInfiniteLoop] ? kPagerViewMaxSectionCount/3 : 0) animate:NO];
+    if (![self isRealInfiniteLoop] && _indexSection.index < 0) {
         [self scrollViewDidScroll:_collectionView];
     }
 }
 
 - (void)recyclePagerViewIfNeed {
-    if (!_isInfiniteLoop) {
+    if (![self isRealInfiniteLoop]) {
         return;
     }
     // 这里要改为 >=，可以拿 kPagerViewMaxSectionCount = 3 和 kPagerViewMinSectionCount = 1 测试
@@ -461,7 +464,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
 #pragma mark - UICollectionViewDataSource
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return _isInfiniteLoop ? kPagerViewMaxSectionCount : 1;
+    return [self isRealInfiniteLoop] ? kPagerViewMaxSectionCount : 1;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -481,7 +484,7 @@ NS_INLINE TYIndexSection TYMakeIndexSection(NSInteger index, NSInteger section) 
 #pragma mark - UICollectionViewDelegateFlowLayout
 
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
-    if (!_isInfiniteLoop) {
+    if (![self isRealInfiniteLoop]) {
         return _layout.onlyOneSectionInset;
     }
     if (section == 0 ) {
